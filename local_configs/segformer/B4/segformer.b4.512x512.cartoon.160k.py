@@ -21,7 +21,7 @@ model = dict(
         feature_strides=[4, 8, 16, 32],
         channels=128,
         dropout_ratio=0.1,
-        num_classes=28,
+        num_classes=25,
         norm_cfg=norm_cfg,
         align_corners=False,
         decoder_params=dict(embed_dim=768),

@@ -1,13 +1,13 @@
 # dataset settings
 dataset_type = 'CartoonDataset'
-data_root = '/home/clpan/clpan/datasets/cartoon/'
+data_root = '/media/ubuntu/dataset_nvme1/dataset/cartoon/pic_test/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 crop_size = (512, 512)
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations'),
-    dict(type='Resize', img_scale=(2048, 1024), ratio_range=(0.5, 2.0)),
+    dict(type='Resize', img_scale=crop_size, ratio_range=(0.5, 2.0)),
     dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.75),
     dict(type='RandomFlip', prob=0.5),
     dict(type='PhotoMetricDistortion'),
@@ -20,7 +20,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(2048, 1024),
+        img_scale=crop_size,
         # img_ratios=[0.5, 0.75, 1.0, 1.25, 1.5, 1.75],
         flip=False,
         transforms=[
@@ -37,18 +37,18 @@ data = dict(
     train=dict(
         type=dataset_type,
         data_root=data_root,
-        img_dir='train_imgs',
-        ann_dir='train_masks',
+        img_dir='train/imgs',
+        ann_dir='train/masks',
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
         data_root=data_root,
-        img_dir='val_imgs',
-        ann_dir='val_masks',
+        img_dir='val/imgs',
+        ann_dir='val/masks',
         pipeline=test_pipeline),
     test=dict(
         type=dataset_type,
         data_root=data_root,
-        img_dir='val_imgs',
-        ann_dir='val_imgs',
+        img_dir='val/imgs',
+        ann_dir='val/imgs',
         pipeline=test_pipeline))

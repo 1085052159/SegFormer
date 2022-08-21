@@ -1,0 +1,17 @@
+img="/media/ubuntu/dataset_nvme1/dataset/cityscapes/leftImg8bit/test/berlin/berlin_000000_000019_leftImg8bit.png"
+img="/media/ubuntu/dataset_nvme1/dataset/cityscapes/leftImg8bit/test/bielefeld/bielefeld_000000_000321_leftImg8bit.png"
+img="/media/ubuntu/dataset_nvme1/dataset/cityscapes/leftImg8bit/test/bonn/bonn_000000_000019_leftImg8bit.png"
+#img="/media/ubuntu/dataset_nvme1/dataset/cityscapes/leftImg8bit/test/leverkusen/leverkusen_000000_000019_leftImg8bit.png"
+#img="/media/ubuntu/dataset_nvme1/dataset/cityscapes/leftImg8bit/test/mainz/mainz_000000_000093_leftImg8bit.png"
+#img="/media/ubuntu/dataset_nvme1/dataset/cityscapes/leftImg8bit/test/munich/munich_000000_000019_leftImg8bit.png"
+config="local_configs/segformer/B3/segformer.b3.1024x1024.city.160k.py"
+ckpt="local_configs/segformer/B3/segformer.b3.1024x1024.city.160k.pth"
+
+img="/home/ubuntu/PycharmProjects/sofgan/datasets/cartoon/train_imgs/1d17f8b4-92aa-11eb-ad6e-58a02372a267####3_0.png"
+img="/home/ubuntu/PycharmProjects/sofgan/datasets/cartoon/total_rgb_masks_pred/1d169a13-92aa-11eb-a416-58a02372a267####1_0.png"
+img="/home/ubuntu/PycharmProjects/sofgan/datasets/cartoon/val_imgs/3d84f194-4655-11eb-9a75-9c7bef2b2a6c####19_0.png"
+img="/home/ubuntu/PycharmProjects/sofgan/datasets/cartoon/val_imgs/9f0ee7d4-8f72-11eb-9fee-58a02372a267####7_0.png"
+img="/home/ubuntu/PycharmProjects/SegFormer/test_imgs/imgs/ab7c0c9991d3e27afa7b18892d0216f.jpg"
+config="cartoon_train/segformer.b4.512x512.cartoon.160k/segformer.b4.512x512.cartoon.160k.py"
+ckpt="cartoon_train/segformer.b4.512x512.cartoon.160k/iter_160000.pth"
+python demo/image_demo.py $img $config $ckpt --device cuda:0 --palette cartoon

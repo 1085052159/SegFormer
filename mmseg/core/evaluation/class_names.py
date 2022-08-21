@@ -51,6 +51,15 @@ def voc_classes():
     ]
 
 
+def cartoon_classes():
+    return ['background', 'hair', 'hair_accessories', 'lip', 'clothes',
+            'eyebrow', 'upper_eyelid', 'lower_eyelid', 'nostril',
+            'face', 'ear', 'pupil', 'highlight',
+            'eyes_white', 'iris', 'neck', 'tongue',
+            'lip_shadow', 'eye_socket', 'furrows_under_eyes', 'nose',
+            'teeth', 'wrinkle', 'limbs', 'blush_sweating']
+
+
 def cityscapes_palette():
     """Cityscapes palette for external use."""
     return [[128, 64, 128], [244, 35, 232], [70, 70, 70], [102, 102, 156],
@@ -111,10 +120,20 @@ def voc_palette():
             [128, 64, 0], [0, 192, 0], [128, 192, 0], [0, 64, 128]]
 
 
+def cartoon_palette():
+    return [[0, 0, 0], [56, 66, 115], [254, 245, 188], [217, 175, 179], [186, 173, 165],
+            [44, 97, 77], [80, 45, 52], [164, 149, 152], [212, 203, 188],
+            [228, 221, 203], [119, 125, 113], [168, 49, 113], [255, 253, 226],
+            [250, 212, 235], [211, 174, 122], [177, 196, 202], [204, 3, 12],
+            [208, 197, 212], [56, 148, 228], [153, 204, 0], [128, 128, 128],
+            [255, 255, 0], [128, 0, 0], [251, 56, 56], [255, 97, 0]]
+
+
 dataset_aliases = {
     'cityscapes': ['cityscapes'],
     'ade': ['ade', 'ade20k'],
-    'voc': ['voc', 'pascal_voc', 'voc12', 'voc12aug']
+    'voc': ['voc', 'pascal_voc', 'voc12', 'voc12aug'],
+    "cartoon": ["cartoon"]
 }
 
 
@@ -124,7 +143,7 @@ def get_classes(dataset):
     for name, aliases in dataset_aliases.items():
         for alias in aliases:
             alias2name[alias] = name
-
+    
     if mmcv.is_str(dataset):
         if dataset in alias2name:
             labels = eval(alias2name[dataset] + '_classes()')
@@ -141,7 +160,7 @@ def get_palette(dataset):
     for name, aliases in dataset_aliases.items():
         for alias in aliases:
             alias2name[alias] = name
-
+    
     if mmcv.is_str(dataset):
         if dataset in alias2name:
             labels = eval(alias2name[dataset] + '_palette()')
