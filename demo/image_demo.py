@@ -21,6 +21,8 @@ def main():
     model = init_segmentor(args.config, args.checkpoint, device=args.device)
     # test a single image
     result = inference_segmentor(model, args.img)
+    # import pdb
+    # pdb.set_trace()
     # show the results
     show_result_pyplot(model, args.img, result, get_palette(args.palette))
 

@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import mmcv
 import torch
@@ -116,3 +118,6 @@ def show_result_pyplot(model, img, result, palette=None, fig_size=(15, 10)):
     plt.figure(figsize=fig_size)
     plt.imshow(mmcv.bgr2rgb(img))
     plt.show()
+    # img_name = os.path.basename(img)
+    # filename = "/home/ubuntu/PycharmProjects/SegFormer/test_imgs/imgs/%s_mask.png" % (img_name.split(".")[0])
+    # plt.imsave(filename, mmcv.bgr2rgb(img))

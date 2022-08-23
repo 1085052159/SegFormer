@@ -1,6 +1,7 @@
 # dataset settings
 dataset_type = 'CartoonDataset'
 data_root = '/home/clpan/clpan/datasets/cartoon/'
+# data_root = '/media/ubuntu/dataset_nvme/dataset/cartoon/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 crop_size = (512, 512)
@@ -49,6 +50,10 @@ data = dict(
     test=dict(
         type=dataset_type,
         data_root=data_root,
+        # img_dir='val/imgs/20220819',
+        # ann_dir='val/masks/20220819',
+        # img_dir='train/imgs/20220819',
+        # ann_dir='train/masks/20220819',
         img_dir='val/imgs',
         ann_dir='val/masks',
         pipeline=test_pipeline))

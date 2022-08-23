@@ -12,22 +12,20 @@ class CartoonDataset(CustomDataset):
     '.png'.
     """
     CLASSES = (
-        'background', 'back_head', 'hair_accessories', 'head_front_curtain',
-        'head_side_curtain', 'upper_lip', 'lower_lip', 'clothes',
+        'background', 'hair', 'hair_accessories', 'lip', 'clothes',
         'eyebrow', 'upper_eyelid', 'lower_eyelid', 'nostril',
         'face', 'ear', 'pupil', 'highlight',
         'eyes_white', 'iris', 'neck', 'tongue',
         'lip_shadow', 'eye_socket', 'furrows_under_eyes', 'nose',
         'teeth', 'wrinkle', 'limbs', 'blush_sweating')
-
-    PALETTE = [[0, 0, 0], [56, 66, 115], [254, 254, 188], [145, 213, 214],
-               [168, 155, 198], [217, 175, 179], [193, 102, 120], [186, 173, 165],
+    
+    PALETTE = [[0, 0, 0], [56, 66, 115], [254, 245, 188], [217, 175, 179], [186, 173, 165],
                [44, 97, 77], [80, 45, 52], [164, 149, 152], [212, 203, 188],
                [228, 221, 203], [119, 125, 113], [168, 49, 113], [255, 253, 226],
                [250, 212, 235], [211, 174, 122], [177, 196, 202], [204, 3, 12],
                [208, 197, 212], [56, 148, 228], [153, 204, 0], [128, 128, 128],
                [255, 255, 0], [128, 0, 0], [251, 56, 56], [255, 97, 0]]
-
+    
     def __init__(self, **kwargs):
         super(CartoonDataset, self).__init__(
             img_suffix='.png',
