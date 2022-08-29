@@ -242,6 +242,8 @@ class BaseSegmentor(nn.Module):
                     0, 255, size=(len(self.CLASSES), 3))
             else:
                 palette = self.PALETTE
+        # import pdb
+        # pdb.set_trace()
         palette = np.array(palette)
         assert palette.shape[0] == len(self.CLASSES)
         assert palette.shape[1] == 3

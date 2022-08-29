@@ -126,16 +126,18 @@ def main():
         workers_per_gpu=cfg.data.workers_per_gpu,
         dist=distributed,
         shuffle=False)
-
+    # import pdb
+    # pdb.set_trace()
     # build the model and load checkpoint
     cfg.model.train_cfg = None
     model = build_segmentor(cfg.model, test_cfg=cfg.get('test_cfg'))
     checkpoint = load_checkpoint(model, args.checkpoint, map_location='cpu')
     # import pdb
     # pdb.set_trace()
-    model.CLASSES = checkpoint['meta']['CLASSES']
-    # model.CLASSES = ('background', 'hair', 'hair_accessories', 'lips', 'clothes', 'eyebrow', 'upper_eyelid', 'lower_eyelid', 'nostril', 'face', 'ear', 'pupil', 'highlight', 'eyes_white', 'iris', 'neck', 'tongue', 'lip_shadow', 'eye_socket', 'furrows_under_eyes', 'nose', 'teeth', 'wrinkle', 'limbs', 'blush_sweating')
-    model.PALETTE = checkpoint['meta']['PALETTE']
+    # model.CLASSES = checkpoint['meta']['CLASSES']
+    # model.PALETTE = checkpoint['meta']['PALETTE']
+    model.CLASSES = dataset.CLASSES
+    model.PALETTE = dataset.PALETTE
 
     efficient_test = True #False
     if args.eval_options is not None:
