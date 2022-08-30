@@ -25,7 +25,7 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         decoder_params=dict(embed_dim=768),
-        loss_decode=dict(type='LovaszLoss', use_sigmoid=False, loss_weight=1.0)),
+        loss_decode=dict(type='LovaszLoss', loss_weight=1.0)),
     # model training and testing settings
     train_cfg=dict(),
     test_cfg=dict(mode='whole'))
