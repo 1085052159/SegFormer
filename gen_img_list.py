@@ -63,3 +63,6 @@ def fine_filter():
     # TODO mv mask directory to img root path, like: xxx/img, xxx/mask
     # TODO extract binary image
     
+
+coarse_filter()
+# fine_filter()
