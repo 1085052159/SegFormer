@@ -7,6 +7,8 @@ from glob import glob
 
 from tqdm import tqdm
 
+random.seed(0)
+
 
 def sample_img(root_path, sample_num=1):
     print("sampled img start")
@@ -60,13 +62,15 @@ def coarse_filter():
     save_path = "/root/autodl-tmp/datasets/cartoon_coarse_filter/train/img"
     sampled_abso_path, sampled_rel_path = sample_img(root_path, sample_num=1)
     save_sampled_img(sampled_abso_path, save_path, sampled_rel_path, backup=True)
-    write_list("%s/imgs_list.txt" % ("/".join(save_path.split("/")[: -1])), sampled_abso_path)
-
+    saved_abso_path = ["%s/%s" % (save_path, rel_path) for rel_path in sampled_rel_path]
+    write_list("%s/imgs_list.txt" % ("/".join(save_path.split("/")[: -1])), saved_abso_path)
+    
     root_path = "/root/autodl-tmp/datasets/cartoon_large_frames/test"
     save_path = "/root/autodl-tmp/datasets/cartoon_coarse_filter/test/img"
     sampled_abso_path, sampled_rel_path = sample_img(root_path, sample_num=1)
     save_sampled_img(sampled_abso_path, save_path, sampled_rel_path, backup=True)
-    write_list("%s/imgs_list.txt" % ("/".join(save_path.split("/")[: -1])), sampled_abso_path)
+    saved_abso_path = ["%s/%s" % (save_path, rel_path) for rel_path in sampled_rel_path]
+    write_list("%s/imgs_list.txt" % ("/".join(save_path.split("/")[: -1])), saved_abso_path)
     
     # TODO pred mask
     # TODO mv mask directory to img root path, like: xxx/img, xxx/mask
@@ -78,18 +82,45 @@ def fine_filter():
     save_path = "/root/autodl-tmp/datasets/cartoon_coarse_filter/train/img"
     sampled_abso_path, sampled_rel_path = sample_img(root_path, sample_num=3)
     save_sampled_img(sampled_abso_path, save_path, sampled_rel_path, backup=True)
-    write_list("%s/imgs_list.txt" % ("/".join(save_path.split("/")[: -1])), sampled_abso_path)
-
+    saved_abso_path = ["%s/%s" % (save_path, rel_path) for rel_path in sampled_rel_path]
+    write_list("%s/imgs_list.txt" % ("/".join(save_path.split("/")[: -1])), saved_abso_path)
+    
     root_path = "/root/autodl-tmp/datasets/cartoon_large_frames/test"
     save_path = "/root/autodl-tmp/datasets/cartoon_coarse_filter/test/img"
     sampled_abso_path, sampled_rel_path = sample_img(root_path, sample_num=1)
     save_sampled_img(sampled_abso_path, save_path, sampled_rel_path, backup=True)
-    write_list("%s/imgs_list.txt" % (save_path.split("/")[: -1]), sampled_abso_path)
+    saved_abso_path = ["%s/%s" % (save_path, rel_path) for rel_path in sampled_rel_path]
+    write_list("%s/imgs_list.txt" % (save_path.split("/")[: -1]), saved_abso_path)
     
     # TODO pred mask
     # TODO mv mask directory to img root path, like: xxx/img, xxx/mask
     # TODO extract binary image
 
 
+def delete_mask(root_path):
+    modes = os.listdir(root_path)
+    for mode in modes:
+        mode_root = "%s/%s" % (root_path, mode)
+        if os.path.isfile(mode_root):
+            continue
+        sub_vid_paths = os.listdir(mode_root)
+        for sub_vid in sub_vid_paths:
+            sub_vid_root = "%s/%s" % (mode_root, sub_vid)
+            if os.path.isfile(sub_vid_root):
+                continue
+            vids = os.listdir(sub_vid_root)
+            for vid in vids:
+                vid_root = "%s/%s" % (sub_vid_root, vid)
+                if os.path.isfile(vid_root):
+                    continue
+                frames = os.listdir(vid_root)
+                for frame in frames:
+                    if frame == "mask":
+                        mask_root = "%s/mask" % vid_root
+                        print(mask_root)
+                        # shutil.rmtree(mask_root)
+
+
 coarse_filter()
 # fine_filter()
+# delete_mask("/root/autodl-tmp/datasets/cartoon_large_frames")

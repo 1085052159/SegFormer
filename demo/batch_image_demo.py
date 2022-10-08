@@ -22,7 +22,7 @@ def main():
         default='cityscapes',
         help='Color palette used for segmentation map')
     args = parser.parse_args()
-
+    
     # build the model from a config file and a checkpoint file
     model = init_segmentor(args.config, args.checkpoint, device=args.device)
     suffixes = args.img_suffixes
@@ -43,7 +43,6 @@ def main():
         result = inference_segmentor(model, img_path)
         # show the results
         show_result_pyplot(model, img_path, result, get_palette(args.palette))
-    
 
 
 if __name__ == '__main__':

@@ -114,12 +114,14 @@ def show_result_pyplot(model, img, result, palette=None, fig_size=(15, 10)):
     """
     if hasattr(model, 'module'):
         model = model.module
+    img_abso_name = img
     img_name = os.path.basename(img)
     dir_name = os.path.dirname(img)
     img = model.show_result(img, result, palette=palette, show=False)
     plt.figure(figsize=fig_size)
     # plt.imshow(mmcv.bgr2rgb(img))
     # plt.show()
-    filename = "%s/mask/%s.png" % (dir_name, img_name.split(".")[0])
+    # filename = "%s/mask/%s.png" % (dir_name, img_name.split(".")[0])
+    filename = img_abso_name.replace("/imgs/", "/masks/").replace(".jpg", ".png")
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     plt.imsave(filename, mmcv.bgr2rgb(img))

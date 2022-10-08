@@ -1,87 +1,92 @@
-import cv2
-import numpy as np
 import os
-from PIL import Image
+from argparse import ArgumentParser
 from glob import glob
 
+import cv2
+import mmcv
+from tqdm import tqdm
 
-def read_img(img_name, gray=False):
-    if not os.path.exists(img_name):
-        print("not found: ", img_name)
-        return None
-    img = cv2.imread(img_name)
-    if gray:
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    return img
+from mmseg.apis import inference_segmentor, init_segmentor, show_result_pyplot
+from mmseg.core.evaluation import get_palette
+import numpy as np
 
 
-def write_img(save_name, img):
-    os.makedirs(os.path.dirname(save_name), exist_ok=True)
-    cv2.imwrite(save_name, img)
+def main():
+    parser = ArgumentParser()
+    parser.add_argument('--input', help='Image path or tested txt file with absolute img path',
+                        default="/root/autodl-tmp/datasets/cartoon_fine_filter/test/imgs_list.txt")
+    parser.add_argument("--suffixes", nargs="+", default="jpg png",
+                        help="img suffix you want to test, like: jpg png")
+    parser.add_argument("--ignore_classes", nargs="+", default="0 4 15 23",
+                        help="img suffix you want to test, like: jpg png")
+    parser.add_argument('--config', help='Config file',
+                        default="work_dirs/segformer.b4.512x512.cartoon_25cls.240k/segformer.b4.512x512.cartoon.240k.py")
+    parser.add_argument('--checkpoint', help='Checkpoint file',
+                        default="work_dirs/segformer.b4.512x512.cartoon_25cls.240k/iter_200000.pth")
+    parser.add_argument(
+        '--device', default='cuda:0', help='Device used for inference')
+    parser.add_argument("--save_path", default=str)
+    args = parser.parse_args()
+
+    # build the model from a config file and a checkpoint file
+    model = init_segmentor(args.config, args.checkpoint, device=args.device)
+    suffixes = args.suffixes
+    if isinstance(suffixes, str):
+        suffixes = [suffixes]
+    inputs = []
+    input_file = args.input
+    save_path = args.save_path
+    if os.path.isfile(input_file):
+        suffix = input_file.split(".")[-1]
+        if suffix in ["txt"]:
+            with open(input_file) as f:
+                inputs = f.readlines()
+            inputs = [path.strip() for path in inputs]
+        if suffix in ["mp4", "avi", "mpeg"]:
+            video = mmcv.VideoReader(input_file)
+            inputs = video[:]
+            vwriter = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'XVID'), video.fps,
+                                      video.resolution)
+        if suffix in ["jpg", "png", "jpeg", "bmp"]:
+            inputs = [input_file]
+    elif os.path.isdir(input_file):
+        inputs = glob("%s/*.*" % input_file)
+        inputs = [path for path in inputs if path.split(".")[-1] in suffixes]
+    else:
+        raise ValueError("unrecognized input: %s" % input_file)
+    # ignore background, clothes, neck, limbs
+    # ignore_classes = [0, 4, 15, 23]
+    ignore_classes = [int(x) for x in args.ignore_classes]
+    for input_ in tqdm(inputs):
+        if isinstance(input_, str):
+            img = mmcv.imread(input_)
+        else:
+            img = input_
+        # test a single image
+        result = inference_segmentor(model, img)
+        mask = result[0].copy()
+        for label in range(np.min(mask), np.max(mask) + 1):
+            idx = np.where(mask == label)
+            if label in ignore_classes:
+                mask[idx] = 0
+            else:
+                mask[idx] = 1
+        # mask_rgb = np.zeros((*mask.shape, 3), dtype=mask.dtype)
+        # import pdb
+        # pdb.set_trace()
+        mask = mask.astype(img.dtype)
+        head_img = img.copy()
+        for ch in range(img.shape[-1]):
+            head_img[:, :, ch] = img[:, :, ch] * mask
+        if save_path.split(".")[-1] in ["mp4", "avi", "mpeg"]:
+            vwriter.write(head_img)
+        else:
+            # save_path_ = "%s/%s_head.jpg" % (save_path, os.path.basename(input_).split(".")[0])
+            save_path_ = input_.replace("/imgs/", "/imgs_head/")
+            mmcv.imwrite(head_img, save_path_)
+    if save_path.split(".")[-1] in ["mp4", "avi", "mpeg"]:
+        vwriter.release()
 
 
-def gen_binary_mask(mask, del_rgb_color=None):
-    h, w, _ = mask.shape
-    new_mask = np.ones_like(mask)
-    for i in range(h):
-        for j in range(w):
-            cur_rgb_color = "_".join(str(t) for t in mask[i, j, ::-1])
-            # print(cur_rgb_color)
-            if cur_rgb_color in del_rgb_color:
-                new_mask[i, j] = [0, 0, 0]
-    return new_mask
-
-
-def save_binary_img(img_name, mask_name, del_rgb_color=None):
-    img = read_img(img_name)
-    mask = read_img(mask_name, gray=False)
-    if del_rgb_color is None:
-        # delete "background", "clothes", "neck"
-        # color [0, 0, 0], [186, 173, 165], [177, 196, 202]
-        del_rgb_color = ["0_0_0", "186_173_165", "177_196_202"]
-    binary_mask = gen_binary_mask(mask, del_rgb_color)
-    
-    binary_img = img * binary_mask
-    base_dir = os.path.dirname(img_name)
-    base_img_name = os.path.basename(img_name)
-    save_name = "%s_binary/%s" % (base_dir, base_img_name)
-    write_img(save_name, binary_img)
-
-
-class_names = ['background', 'hair', 'hair_accessories', 'lip', 'clothes',
-               'eyebrow', 'upper_eyelid', 'lower_eyelid', 'nostril',
-               'face', 'ear', 'pupil', 'highlight',
-               'eyes_white', 'iris', 'neck', 'tongue',
-               'lip_shadow', 'eye_socket', 'furrows_under_eyes', 'nose',
-               'teeth', 'wrinkle', 'limbs', 'blush_sweating']
-colors = [[0, 0, 0], [56, 66, 115], [254, 245, 188], [217, 175, 179], [186, 173, 165],
-          [44, 97, 77], [80, 45, 52], [164, 149, 152], [212, 203, 188],
-          [228, 221, 203], [119, 125, 113], [168, 49, 113], [255, 253, 226],
-          [250, 212, 235], [211, 174, 122], [177, 196, 202], [204, 3, 12],
-          [208, 197, 212], [56, 148, 228], [153, 204, 0], [128, 128, 128],
-          [255, 255, 0], [128, 0, 0], [251, 56, 56], [255, 97, 0]]
-
-# vid_names = [
-#     "1d142abd-92aa-11eb-b186-58a02372a267####99",
-#     "1d142abe-92aa-11eb-9336-58a02372a267####0",
-#     "1d142abe-92aa-11eb-9336-58a02372a267####1",
-#     "1d142abe-92aa-11eb-9336-58a02372a267####10",
-#     "1d142abe-92aa-11eb-9336-58a02372a267####11",
-#     "1d142abe-92aa-11eb-9336-58a02372a267####12",
-#     "1d142abe-92aa-11eb-9336-58a02372a267####14",
-# ]
-# base_path = "/home/ubuntu/Desktop/tmp_videos"
-base_path = "/root/autodl-tmp/datasets/cartoon_coarse_filter/img"
-vid_names = os.listdir(base_path)
-del_rgb_color = ["0_0_0", "186_173_165", "177_196_202"]
-for vid_name in vid_names:
-    vid_path = "%s/%s" % (base_path, vid_name)
-    img_path = "%s/img" % vid_path
-    mask_path = "%s/mask" % vid_path
-    frames = os.listdir(img_path)
-    frames_id = [frame.split(".")[0] for frame in frames]
-    frames_id = sorted(frames_id)
-    for frame_id in frames_id:
-        img_name = "%s/%s.jpg" % (img_path, frame_id)
-        mask_name = "%s/%s.png" % (mask_path, frame_id)
-        save_binary_img(img_name, mask_name, del_rgb_color)
+if __name__ == '__main__':
+    main()
